@@ -121,6 +121,26 @@ export const AIService = {
    */
   async aiClipping(userId, { video_url, num_highlights = 3, aspect_ratio = "9:16", customApiKey = null }) {
     const numHighlights = parseInt(num_highlights);
+
+    // ClipMee's self-hosted engine takes precedence when configured. The MuAPI
+    // path remains a compatibility fallback for existing deployments.
+    if (config.ai.clipEngine.url) {
+      const response = await fetch(`${config.ai.clipEngine.url.replace(/\/$/, "")}/v1/clips`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(config.ai.clipEngine.secret ? { "x-clipmee-service-key": config.ai.clipEngine.secret } : {}),
+        },
+        body: JSON.stringify({ source_url: video_url, num_clips: numHighlights, aspect_ratio }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || data.error || "ClipMee engine could not start this job.");
+      const requestId = `clipmee_${data.job_id}`;
+      await prisma.creation.create({
+        data: { userId, type: "ai_clipping", aspectRatio: aspect_ratio, numClips: numHighlights, requestId, status: "processing" },
+      });
+      return { request_id: requestId, status: "processing" };
+    }
     const isUsingCustomKey = Boolean(customApiKey && customApiKey.trim().length > 0);
     const cost = isUsingCustomKey ? 0 : await this.calculateClippingCost(video_url, numHighlights);
 
@@ -212,6 +232,24 @@ export const AIService = {
 
     if (creation.status === "failed") {
       throw new Error(creation.error || "Generation failed.");
+    }
+
+    if (requestId.startsWith("clipmee_") && config.ai.clipEngine.url) {
+      const engineJobId = requestId.replace(/^clipmee_/, "");
+      const response = await fetch(`${config.ai.clipEngine.url.replace(/\/$/, "")}/v1/clips/${engineJobId}`, {
+        headers: config.ai.clipEngine.secret ? { "x-clipmee-service-key": config.ai.clipEngine.secret } : {},
+      });
+      if (!response.ok) return { status: "processing" };
+      const job = await response.json();
+      if (job.status === "completed") {
+        await creationModel.update({ where: { id: creation.id }, data: { status: "completed", resultUrl: JSON.stringify(job.clips || []) } });
+        return { status: "completed", clips: job.clips || [] };
+      }
+      if (job.status === "failed") {
+        await creationModel.update({ where: { id: creation.id }, data: { status: "failed", error: job.error || "ClipMee engine failed." } });
+        throw new Error(job.error || "ClipMee engine failed.");
+      }
+      return { status: "processing" };
     }
 
     // Fallback: Check MuAPI directly if still processing (helps when webhooks fail on localhost)

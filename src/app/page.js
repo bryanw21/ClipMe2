@@ -249,10 +249,10 @@ export default function Home() {
         {/* Header Title */}
         <div className="space-y-2">
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-            AICLIP Studio
+            ClipMee Studio
           </h1>
           <p className="text-sm text-muted">
-            Download YouTube videos and extract viral highlights.
+            Create powerful short-form clips from videos you own or are authorized to use.
           </p>
         </div>
 
@@ -271,7 +271,7 @@ export default function Home() {
                 activeTab === "download" ? "text-primary" : "text-muted"
               }
             />
-            1. Download
+            1. Add source
           </button>
           <button
             onClick={() => setActiveTab("clip")}
@@ -320,10 +320,10 @@ export default function Home() {
               >
                 <div className="space-y-1">
                   <h2 className="text-lg font-medium text-foreground">
-                    Extract Video
+                    Add an authorized source
                   </h2>
                   <p className="text-muted text-sm">
-                    Paste a YouTube link to download the source video.
+                    Paste a YouTube link from a channel you manage. For other sources, upload the original MP4.
                   </p>
                 </div>
 
@@ -331,7 +331,7 @@ export default function Home() {
                   {/* URL Input */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-muted uppercase tracking-widest">
-                      YouTube URL
+                      Authorized YouTube URL
                     </label>
                     <div className="relative flex items-center">
                       <FaYoutube className="absolute left-3 text-muted" />
@@ -406,7 +406,7 @@ export default function Home() {
                     ) : (
                       <>
                         <FaBolt className="text-yellow-400" />
-                        Download Video — 5 Credits
+                        Prepare source video
                       </>
                     )}
                   </button>
@@ -415,7 +415,7 @@ export default function Home() {
                     <div className="mt-4 p-3 bg-green-500/10 border border-green-500/20 rounded-lg flex items-center gap-2 text-green-500 font-medium text-sm">
                       <FaCheckCircle className="shrink-0" />
                       <span className="truncate">
-                        Download complete! Link passed to AI Clipping.
+                        Source prepared. Moving it into ClipMee’s AI clip workflow.
                       </span>
                     </div>
                   )}
@@ -435,7 +435,7 @@ export default function Home() {
                     AI Clipping
                   </h2>
                   <p className="text-muted text-sm">
-                    Extract viral highlights from your video instantly.
+                    Find, caption, and format the strongest moments in your video.
                   </p>
                 </div>
 
@@ -443,7 +443,7 @@ export default function Home() {
                   {/* Video URL Input */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-muted uppercase tracking-widest">
-                      Source Video URL
+                        Authorized source URL
                     </label>
                     <div className="relative flex items-center">
                       <FaFilm className="absolute left-3 text-muted" />

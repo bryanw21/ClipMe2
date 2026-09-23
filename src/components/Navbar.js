@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSession, signOut, signIn } from "next-auth/react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { IoClose, IoMenu } from "react-icons/io5";
 import { FiMoon, FiSun, FiLogOut, FiDollarSign, FiPlus, FiUser, FiKey, FiCheck, FiX, FiTrash2 } from "react-icons/fi";
@@ -24,11 +24,10 @@ export default function Navbar() {
 
   const isApiKeyActive = Boolean(session?.user?.customApiKey);
 
-  useEffect(() => {
-    if (session?.user?.customApiKey) {
-      setApiKeyInput(session.user.customApiKey);
-    }
-  }, [session?.user?.customApiKey]);
+  const openApiKeyModal = () => {
+    setApiKeyInput(session?.user?.customApiKey || "");
+    setIsApiKeyModalOpen(true);
+  };
 
   const appMatch = pathname ? pathname.match(/^\/app\/([^\/]+)/) : null;
   const currentAppId = appMatch ? appMatch[1] : null;
@@ -41,6 +40,7 @@ export default function Navbar() {
       ]
     : [
         { name: "Workspace", path: "/" },
+        { name: "Connections", path: "/connections" },
         { name: "Gallery", path: "/gallery" },
         { name: "Pricing", path: "/pricing" },
       ];
@@ -156,7 +156,7 @@ export default function Navbar() {
 
           {/* Add/Manage API Key - Directly visible in Navbar */}
           <button
-            onClick={() => setIsApiKeyModalOpen(true)}
+            onClick={openApiKeyModal}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${
               isApiKeyActive
                 ? "bg-amber-500/10 border-amber-500/30 text-amber-400 hover:bg-amber-500/20"
@@ -210,7 +210,7 @@ export default function Navbar() {
                       {session.user.email}
                     </div>
                     <button
-                      onClick={() => setIsApiKeyModalOpen(true)}
+                      onClick={openApiKeyModal}
                       className="flex w-full items-center gap-2 rounded px-3 py-2 text-left text-xs font-semibold text-primary-text hover:bg-primary/10 transition-colors"
                     >
                       <FiKey size={14} className="text-amber-400" />
@@ -277,7 +277,7 @@ export default function Navbar() {
             <button
               onClick={() => {
                 setIsOpen(false);
-                setIsApiKeyModalOpen(true);
+                openApiKeyModal();
               }}
               className="flex w-full items-center justify-between rounded border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-xs font-bold text-amber-400"
             >

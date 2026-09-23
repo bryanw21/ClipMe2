@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable react-hooks/set-state-in-effect -- this page loads persisted creations after session hydration. */
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
@@ -20,6 +21,18 @@ export default function CreationsPage() {
   const [downloading, setDownloading] = useState(false);
   const [selectedClip, setSelectedClip] = useState(null);
 
+  async function fetchCreations() {
+    try {
+      const res = await fetch("/api/creations");
+      const data = await res.json();
+      if (res.ok) setCreations(data);
+    } catch (error) {
+      console.error("Error fetching creations:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
     if (status === "authenticated") {
       fetchCreations();
@@ -27,20 +40,6 @@ export default function CreationsPage() {
       router.push("/");
     }
   }, [status]);
-
-  const fetchCreations = async () => {
-    try {
-      const res = await fetch("/api/creations");
-      const data = await res.json();
-      if (res.ok) {
-        setCreations(data);
-      }
-    } catch (error) {
-      console.error("Error fetching creations:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const parseResultUrl = (url) => {
     try {

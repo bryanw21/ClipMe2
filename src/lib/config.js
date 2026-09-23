@@ -4,7 +4,7 @@
  */
 
 const config = {
-  appName: "Aiclips Generator",
+  appName: "ClipMee",
   auth: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -31,7 +31,15 @@ const config = {
       apiKey: process.env.AICLIPS_API_KEY,
       youtubeEndpoint: "https://api.muapi.ai/api/v1/youtube-download",
       clippingEndpoint: "https://api.muapi.ai/api/v1/ai-clipping",
-    }
+    },
+    clipEngine: {
+      url: process.env.CLIP_ENGINE_URL,
+      secret: process.env.CLIP_ENGINE_SHARED_SECRET,
+    },
+  },
+  meta: {
+    appId: process.env.META_APP_ID,
+    appSecret: process.env.META_APP_SECRET,
   },
   db: {
     url: process.env.DATABASE_URL,
